@@ -2,27 +2,38 @@ const inputEl = document.querySelector("input");
 const buttonEl = document.querySelector("button");
 const timerEl = document.querySelector("span");
 
+let interval;
+
 // Напишите реализацию createTimerAnimator
 // который будет анимировать timerEl
 
+const convertorSeconds = (seconds) => {
+  const sec = Math.trunc(seconds % 60);
+  const min = Math.trunc((seconds / 60) % 60);
+  const hour = Math.trunc((seconds / 60 / 60) % 60);
+
+  const hourDoubleZero = hour < 10 ? "0" + hour : hour;
+  const minDoubleZero = min < 10 ? "0" + min : min;
+  const secDoubleZero = sec < 10 ? "0" + sec : sec;
+
+  return `${hourDoubleZero}:${minDoubleZero}:${secDoubleZero}`;
+};
+
+function timer(seconds) {
+  interval = setInterval(() => {
+    if (seconds !== -1) {
+      timerEl.innerText = convertorSeconds(seconds);
+    } else {
+      clearInterval(interval);
+    }
+    seconds--;
+  }, 1000);
+}
+
 const createTimerAnimator = () => {
   return (seconds) => {
-    const interval = setInterval(() => {
-      const sec = Math.trunc(seconds % 60);
-      const min = Math.trunc((seconds / 60) % 60);
-      const hour = Math.trunc((seconds / 60 / 60) % 60);
-
-      let hourDoubleZero = hour < 10 ? "0" + hour : hour;
-      let minDoubleZero = min < 10 ? "0" + min : min;
-      let secDoubleZero = sec < 10 ? "0" + sec : sec;
-
-      if (sec === -1) {
-        clearInterval(interval);
-      } else {
-        timerEl.innerText = `${hourDoubleZero} ${minDoubleZero} ${secDoubleZero}`;
-      }
-      seconds--;
-    }, 1000);
+    seconds--;
+    timer(seconds);
   };
 };
 
@@ -32,11 +43,17 @@ inputEl.addEventListener("input", (e) => {
   // Очистите input так, чтобы в значении
   // оставались только числа
   inputEl.value = parseInt(e.target.value);
+
+  if (e.target.value === "NaN") {
+    e.target.value = 0;
+  }
+  clearInterval(interval);
+
+  timerEl.innerText = convertorSeconds(e.target.value);
 });
 
 buttonEl.addEventListener("click", () => {
   const seconds = Number(inputEl.value);
-
   animateTimer(seconds);
 
   inputEl.value = "";
